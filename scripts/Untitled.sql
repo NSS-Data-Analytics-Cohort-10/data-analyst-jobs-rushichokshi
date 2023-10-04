@@ -23,17 +23,22 @@ LIMIT 10
 
 SELECT COUNT(location)
 FROM data_analyst_jobs
+WHERE location = 'TN';
+
+SELECT COUNT(location)
+FROM data_analyst_jobs
 WHERE location = 'TN' OR location = 'KY';
 
---ANSWER: 27
+--ANSWER: 21, 27
 
 -- 4.	How many postings in Tennessee have a star rating above 4?
 
 SELECT COUNT(location)
 FROM data_analyst_jobs
-WHERE star_rating>4;
+WHERE star_rating>4
+AND location = 'TN';
 
---ANSWER: 416
+--ANSWER: 3
 
 -- 5.	How many postings in the dataset have a review count between 500 and 1000?
 
@@ -80,19 +85,19 @@ HAVING SUM(review_count)>5000;
 
 SELECT company, AVG(star_rating) as avg_rating, SUM(review_count)
 FROM data_analyst_jobs
-WHERE review_count>5000
 GROUP BY company
+HAVING SUM(review_count)>5000
 ORDER BY avg_rating DESC;
 
---ANSWER General Motors, 4.199999809
+--ANSWER Google, 4.3
 
 -- 11.	Find all the job titles that contain the word ‘Analyst’. How many different job titles are there? 
 
 SELECT COUNT(DISTINCT title)
 FROM data_analyst_jobs
-WHERE title LIKE '%Analyst%';
+WHERE LOWER(title) LIKE '%analyst%';
 
---ANSWER: 754
+--ANSWER: 774
 
 -- 12.	How many different job titles do not contain either the word ‘Analyst’ or the word ‘Analytics’? What word do these positions have in common?
 
@@ -109,34 +114,34 @@ AND LOWER(title) NOT LIKE '%analytics%';
 -- You want to understand which jobs requiring SQL are hard to fill. Find the number of jobs by industry (domain) that require SQL and have been posted longer than 3 weeks. 
 
 
-SELECT title, domain
+SELECT domain, count(title)
 FROM data_analyst_jobs
-WHERE skill = 'SQL'
-AND days_since_posting > 21;
-
-SELECT *
-FROM data_analyst_jobs
-WHERE skill = 'SQL'
-AND days_since_posting > 21;
+WHERE LOWEr(skill) LIKE '%sql%'
+AND days_since_posting > 21
+GROUP BY domain;
 
 --ANSWER: 15
 
 --  - Disregard any postings where the domain is NULL. 
 
-SELECT *
+SELECT domain, count(title)
 FROM data_analyst_jobs
-WHERE skill = 'SQL'
+WHERE LOWER(skill) LIKE '%sql%'
 AND days_since_posting > 21
-AND domain IS NOT NULL;
+AND domain IS NOT NULL
+GROUP BY domain;
 
 
 --  - Order your results so that the domain with the greatest number of `hard to fill` jobs is at the top. 
 
-SELECT *
+SELECT domain, count(title) as jobs
 FROM data_analyst_jobs
-WHERE skill = 'SQL'
+WHERE LOWER(skill) LIKE '%sql%'
 AND days_since_posting > 21
 AND domain IS NOT NULL
-ORDER BY domain;
+GROUP BY domain
+ORDER BY jobs DESC;
 
 --   - Which three industries are in the top 4 on this list? How many jobs have been listed for more than 3 weeks for each of the top 4?
+
+--ANSWER: Internet and Software (62), Banks and Financial Services (61), Consulting and Business Services (57), Health Care (52)
